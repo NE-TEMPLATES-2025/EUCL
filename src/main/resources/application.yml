@@ -1,0 +1,19 @@
+spring:
+  profiles:
+    active: dev
+
+  application:
+    name: eucl
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
+    url: jdbc:postgresql//localhost:5432/${DATABASE_NAME}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+
+
