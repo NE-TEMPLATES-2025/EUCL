@@ -12,12 +12,17 @@ import com.paccy.eucl.services.ITokenService;
 import com.paccy.eucl.utils.Utility;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 
 @Slf4j
@@ -84,6 +89,30 @@ public class TokenServiceImpl implements ITokenService {
             return tokenRepository.save(token);
         }
 
+    }
+
+    @Override
+    public String validateToken(String tokenString) {
+    Token token= this.tokenRepository.findByToken(tokenString).orElseThrow(
+            ()-> new BadRequestException("Token not found")
+    );
+    return "Token for " + token.getAmount() + " RWF should light for " + token.getTokenValueDays() + " days as 100RWF lights for 1 day";
+
+    }
+
+    @Override
+    public Page<Token> getAllTokensByMeterNumber(UUID meterNumberId, int page, int size) {
+        Pageable pageable= PageRequest.of(page,size);
+        MeterNumber meterNumber=meterNumberRepository.findById(meterNumberId).orElseThrow();
+        return tokenRepository.findAllByMeterNumber(meterNumber,pageable).map(
+                token -> {
+                    String formattedToken = token.getToken().replaceAll("(.{4})","$1-");
+                    if (formattedToken.endsWith("-")) {
+                        formattedToken = formattedToken.substring(0, formattedToken.length() - 1);
+                    }
+                    token.setToken(formattedToken);
+                    return  token;
+                });
     }
 
     private boolean isElectricityTokenExpired(Token token){
