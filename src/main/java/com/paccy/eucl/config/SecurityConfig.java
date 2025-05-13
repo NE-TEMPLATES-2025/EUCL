@@ -38,7 +38,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         request->
                                 request
-                                        .requestMatchers("/api/v1/token/purchase")
+                                        .requestMatchers("/api/v1/token/purchase",
+                                                "/api/v1/user/admin/register",
+                                                "/api/v1/meter-number/**",
+                                                "/api/v1/token/**")
                                         .authenticated()
                                         .anyRequest()
                                         .permitAll()
