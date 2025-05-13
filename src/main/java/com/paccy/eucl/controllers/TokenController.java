@@ -7,12 +7,12 @@ import com.paccy.eucl.response.ApiResponse;
 import com.paccy.eucl.services.impl.TokenServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/token")
@@ -29,5 +29,25 @@ public class TokenController {
 
      Token response= tokenService.purchaseElectricity(purchaseElectricityRequest);
      return  new ApiResponse<>("Electricity purchased successfully", HttpStatus.CREATED,response).toResponseEntity();
+    }
+
+
+    @GetMapping("/{tokenString}")
+    public ResponseEntity<ApiResponse<String>> validateToken(
+            @PathVariable("tokenString") String tokenString
+    ){
+      String response = tokenService.validateToken(tokenString);
+      return new ApiResponse<>("Token validated successfully", HttpStatus.OK, response).toResponseEntity();
+    }
+
+
+    @GetMapping("/search/{meterNumberId}")
+    public ResponseEntity<ApiResponse<Page<Token>>> getTokensByMeterNumber(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @PathVariable(name = "meterNumberId") UUID meterNumberId
+    ){
+        Page<Token> response= tokenService.getAllTokensByMeterNumber(meterNumberId,page,size);
+        return new ApiResponse<>("Tokens found", HttpStatus.OK, response).toResponseEntity();
     }
 }
